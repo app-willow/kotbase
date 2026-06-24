@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
-    kotlin("native.cocoapods")
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
 }
@@ -12,22 +11,26 @@ plugins {
 kotlin {
     androidTarget()
     jvm()
-    iosArm64()
-    iosX64()
-    iosSimulatorArm64()
-
-    cocoapods {
-        version = "1.0"
-        summary = "Kotbase Getting Started Compose Multiplatform"
-        homepage = "https://kotbase.dev/"
-        ios.deploymentTarget = "14.1"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
+    // Link the vendored CouchbaseLite XCFramework directly (instead of the deprecated
+    // Kotlin CocoaPods plugin). The iosApp embeds composeApp.framework + the XCFramework
+    // via its Xcode project. See vendor/CouchbaseLite/.
+    iosArm64 {
+        binaries.framework {
+            baseName = "composeApp"
+            val path = "$rootDir/vendor/CouchbaseLite/CouchbaseLite.xcframework/ios-arm64"
+            linkerOpts("-F$path", "-framework", "CouchbaseLite", "-rpath", path)
             binaryOption("bundleId", "dev.kotbase.gettingstarted.compose")
         }
-        pod("CouchbaseLite") {
-            version = libs.versions.couchbase.lite.objc.get()
-            linkOnly = true
+    }
+    listOf(
+        iosX64(),
+        iosSimulatorArm64()
+    ).forEach {
+        it.binaries.framework {
+            baseName = "composeApp"
+            val path = "$rootDir/vendor/CouchbaseLite/CouchbaseLite.xcframework/ios-arm64_x86_64-simulator"
+            linkerOpts("-F$path", "-framework", "CouchbaseLite", "-rpath", path)
+            binaryOption("bundleId", "dev.kotbase.gettingstarted.compose")
         }
     }
 
