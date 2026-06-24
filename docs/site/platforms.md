@@ -64,49 +64,54 @@ Kotbase supports native iOS and macOS apps via the [Couchbase Lite Objective-C S
 https://github.com/couchbase/couchbase-lite-ios). Developers with experience using Couchbase Lite in Swift should find
 Kotbase's API in Kotlin familiar.
 
-Binaries need to link with the correct version of the `CouchbaseLite` XCFramework, which can be downloaded [here](
-https://www.couchbase.com/downloads/?family=couchbase-lite) or added via [Carthage or CocoaPods](
-https://docs.couchbase.com/couchbase-lite/current/objc/gs-install.html#lbl-install-tabs). The version should match the
-major and minor version of Kotbase, e.g. CouchbaseLite {{ version_short }}.x for Kotbase {{ version_full }}.
+Binaries need to link with the correct version of the `CouchbaseLite` XCFramework. The version should match the major
+and minor version of Kotbase, e.g. CouchbaseLite {{ version_short }}.x for Kotbase {{ version_full }}.
 
-The [Kotlin CocoaPods Gradle plugin](
-https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-cocoapods-overview.html) can also be used to
-generate a [Podspec](https://guides.cocoapods.org/syntax/podspec.html) for your project that includes the
-`CouchbaseLite` dependency. Use `linkOnly = true` to link the dependency without generating Kotlin Objective-C interop:
+The recommended approach is to download the XCFramework and link it directly from your native target binaries. This
+avoids a CocoaPods dependency and matches the [getting-started example](
+https://github.com/jeffdgr8/kotbase/tree/main/examples/getting-started).
 
-!!! example "CocoaPods plugin"
+1. Download the `CouchbaseLite` (or `CouchbaseLite-Enterprise`) XCFramework [here](
+   https://www.couchbase.com/downloads/?family=couchbase-lite) and unzip `CouchbaseLite.xcframework` into your project
+   (e.g. under `vendor/CouchbaseLite/`).
+2. Link the matching XCFramework slice for each Apple target via `linkerOpts`:
 
-    === "Enterprise Edition"
-    
-        ```kotlin title="build.gradle.kts"
-        plugins {
-            kotlin("multiplatform")
-            kotlin("native.cocoapods")
-        }
-        
-        kotlin {
-            cocoapods {
-                ...
-                pod("CouchbaseLite-Enterprise", version = "{{ version_objc }}", linkOnly = true)
+!!! example "XCFramework linking"
+
+    ```kotlin title="build.gradle.kts"
+    kotlin {
+        iosArm64 {
+            binaries.framework {
+                baseName = "shared"
+                val path = "$rootDir/vendor/CouchbaseLite/CouchbaseLite.xcframework/ios-arm64"
+                linkerOpts("-F$path", "-framework", "CouchbaseLite", "-rpath", path)
             }
         }
-        ```
-
-    === "Community Edition"
-
-        ```kotlin title="build.gradle.kts"
-        plugins {
-            kotlin("multiplatform")
-            kotlin("native.cocoapods")
-        }
-
-        kotlin {
-            cocoapods {
-                ...
-                pod("CouchbaseLite", version = "{{ version_objc }}", linkOnly = true)
+        listOf(
+            iosX64(),
+            iosSimulatorArm64()
+        ).forEach {
+            it.binaries.framework {
+                baseName = "shared"
+                val path = "$rootDir/vendor/CouchbaseLite/CouchbaseLite.xcframework/ios-arm64_x86_64-simulator"
+                linkerOpts("-F$path", "-framework", "CouchbaseLite", "-rpath", path)
             }
         }
-        ```
+        // macOS targets link the macos-arm64_x86_64 slice the same way
+    }
+    ```
+
+    The Community Edition uses the same setup with the `CouchbaseLite` XCFramework (rather than
+    `CouchbaseLite-Enterprise`); the framework name passed to `-framework` is `CouchbaseLite` for both editions.
+
+!!! note "Alternative: CocoaPods"
+
+    The XCFramework can also be added via [Carthage or CocoaPods](
+    https://docs.couchbase.com/couchbase-lite/current/objc/gs-install.html#lbl-install-tabs), or with the [Kotlin
+    CocoaPods Gradle plugin](https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-cocoapods-overview.html)
+    using `linkOnly = true` to link the dependency without generating Kotlin Objective-C interop:
+    `pod("CouchbaseLite-Enterprise", version = "{{ version_objc }}", linkOnly = true)` (or `CouchbaseLite` for the
+    Community Edition).
 
 ### iOS
 
