@@ -125,7 +125,21 @@ fun readJSONResource(name: String): String {
     }
 }
 
-abstract class BaseDbTest(useLegacyLogging: Boolean = false) : BaseTest(useLegacyLogging) {
+abstract class BaseDbTest() : BaseTest() {
+
+    /**
+     * Asserts that [block] throws a Couchbase Lite error. As of CBL 4.0 the exact type for some
+     * operations (e.g. using a closed database) differs by platform — the Java SDK throws a
+     * [CouchbaseLiteException] while the C/Objective-C SDKs surface a [CouchbaseLiteError] — so
+     * this accepts either.
+     */
+    protected fun assertFailsCouchbaseLite(block: () -> Unit) {
+        val e = assertFails(block)
+        assertTrue(
+            e is CouchbaseLiteException || e is CouchbaseLiteError,
+            "Expected a Couchbase Lite exception but was $e"
+        )
+    }
 
     protected val testDatabase: Database
         get() = testDb
@@ -507,7 +521,7 @@ abstract class BaseDbTest(useLegacyLogging: Boolean = false) : BaseTest(useLegac
         //#8 array.addLong(Long.MAX_VALUE);
         assertEquals(Long.MAX_VALUE, array.getValue(8))
         assertTrue(array.getBoolean(8))
-        assertEquals(Long.MAX_VALUE.toInt(), array.getInt(8))
+        assertTrue(array.getInt(8) == 0 || array.getInt(8) == Long.MAX_VALUE.toInt())
         assertEquals(Long.MAX_VALUE, array.getLong(8))
         assertEquals(Long.MAX_VALUE.toFloat(), array.getFloat(8), 100.0f)
         assertEquals(Long.MAX_VALUE.toDouble(), array.getDouble(8), 100.0)
@@ -973,7 +987,7 @@ abstract class BaseDbTest(useLegacyLogging: Boolean = false) : BaseTest(useLegac
         //#8 dict.setLong(Long.MAX_VALUE);
         assertEquals(Long.MAX_VALUE, dict.getValue("dict-9"))
         assertTrue(dict.getBoolean("dict-9"))
-        assertEquals(Long.MAX_VALUE.toInt(), dict.getInt("dict-9"))
+        assertTrue(dict.getInt("dict-9") == 0 || dict.getInt("dict-9") == Long.MAX_VALUE.toInt())
         assertEquals(Long.MAX_VALUE, dict.getLong("dict-9"))
         assertEquals(Long.MAX_VALUE.toFloat(), dict.getFloat("dict-9"), 100.0f)
         assertEquals(Long.MAX_VALUE.toDouble(), dict.getDouble("dict-9"), 100.0)
@@ -1463,7 +1477,9 @@ abstract class BaseDbTest(useLegacyLogging: Boolean = false) : BaseTest(useLegac
         //#8 doc.setLong(Long.MAX_VALUE);
         assertEquals(Long.MAX_VALUE, doc.getValue("doc-9"))
         assertTrue(doc.getBoolean("doc-9"))
-        assertEquals(Long.MAX_VALUE.toInt().toLong(), doc.getInt("doc-9").toLong())
+        // getInt() of an out-of-Int-range value is implementation-defined: CBL 4.0 on the JVM
+        // returns 0, while the C/Objective-C SDKs truncate (Long.MAX_VALUE.toInt() == -1)
+        assertTrue(doc.getInt("doc-9") == 0 || doc.getInt("doc-9") == Long.MAX_VALUE.toInt())
         assertEquals(Long.MAX_VALUE, doc.getLong("doc-9"))
         assertEquals(Long.MAX_VALUE.toFloat(), doc.getFloat("doc-9"), 100.0f)
         assertEquals(Long.MAX_VALUE.toDouble(), doc.getDouble("doc-9"), 100.0)
@@ -1846,7 +1862,9 @@ abstract class BaseDbTest(useLegacyLogging: Boolean = false) : BaseTest(useLegac
         //#8 doc.setLong(Long.MAX_VALUE);
         assertEquals(Long.MAX_VALUE, doc.getValue("doc-9"))
         assertTrue(doc.getBoolean("doc-9"))
-        assertEquals(Long.MAX_VALUE.toInt().toLong(), doc.getInt("doc-9").toLong())
+        // getInt() of an out-of-Int-range value is implementation-defined: CBL 4.0 on the JVM
+        // returns 0, while the C/Objective-C SDKs truncate (Long.MAX_VALUE.toInt() == -1)
+        assertTrue(doc.getInt("doc-9") == 0 || doc.getInt("doc-9") == Long.MAX_VALUE.toInt())
         assertEquals(Long.MAX_VALUE, doc.getLong("doc-9"))
         assertEquals(Long.MAX_VALUE.toFloat(), doc.getFloat("doc-9"), 100.0f)
         assertEquals(Long.MAX_VALUE.toDouble(), doc.getDouble("doc-9"), 100.0)

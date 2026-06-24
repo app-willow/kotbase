@@ -29,36 +29,6 @@ private constructor(
     actual: CBLURLEndpointListenerConfiguration
 ) : DelegatedClass<CBLURLEndpointListenerConfiguration>(actual) {
 
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Use URLEndpointListenerConfiguration(Collections)",
-        ReplaceWith("URLEndpointListenerConfiguration(setOf(database.defaultCollection), networkInterface, port, disableTls, identity, authenticator, readOnly, enableDeltaSync)")
-    )
-    public actual constructor(
-        database: Database,
-        networkInterface: String?,
-        port: Int,
-        disableTls: Boolean,
-        identity: TLSIdentity?,
-        authenticator: ListenerAuthenticator?,
-        readOnly: Boolean,
-        enableDeltaSync: Boolean
-    ) : this(
-        database,
-        setOf(database.defaultCollection),
-        identity,
-        authenticator,
-        CBLURLEndpointListenerConfiguration(database.actual).apply {
-            this.networkInterface = networkInterface
-            this.port = port
-            this.setDisableTls(disableTls)
-            this.tlsIdentity = identity?.actual
-            this.authenticator = authenticator?.actual
-            this.isReadOnly = readOnly
-            this.setEnableDeltaSync(enableDeltaSync)
-        }
-    )
-
     public actual constructor(
         collections: Set<Collection>,
         networkInterface: String?,

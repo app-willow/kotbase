@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.gradle.tasks.DefFileTask
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     `multiplatform-convention`
@@ -27,10 +28,8 @@ kotlin {
             // https://youtrack.jetbrains.com/issue/KT-41709
             extraOpts = listOf("-compiler-option", "-DCBLQueryMeta=CBLQueryMetaUnavailable")
         }
-        pod("CouchbaseLiteVectorSearch") {
-            version = libs.versions.couchbase.lite.vector.search.get()
-            linkOnly = true
-        }
+        // Vector Search 2.0.0 (required for CBL 4.0) is not published to the CocoaPods trunk,
+        // so it is linked from the vendored XCFramework below instead of via a Pod.
     }
 
     linkLibcblite()
@@ -43,6 +42,12 @@ kotlin {
                 if (konanTarget.family == Family.MINGW) {
                     extraOpts("-libraryPath", "$projectDir/$libcbliteLibPath")
                 }
+            }
+        } else {
+            // Link the vendored Vector Search 2.0.0 framework for the matching Apple slice.
+            val frameworkDir = "$projectDir/${vectorSearchAppleFrameworkDir(konanTarget)}"
+            binaries.all {
+                linkerOpts("-F", frameworkDir, "-framework", "CouchbaseLiteVectorSearch", "-rpath", frameworkDir)
             }
         }
     }

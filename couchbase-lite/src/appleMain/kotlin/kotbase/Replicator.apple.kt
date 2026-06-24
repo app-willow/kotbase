@@ -41,9 +41,7 @@ internal constructor(
 
     internal actual constructor(config: ReplicatorConfiguration, test: Boolean) : this(config)
 
-    @Suppress("DEPRECATION")
     public actual fun start() {
-        config.database.mustBeOpen()
         actual.start()
     }
 
@@ -64,60 +62,16 @@ internal constructor(
     public actual val serverCertificates: List<ByteArray>?
         get() = actual.serverCertificate?.toByteArray()?.let { listOf(it) }
 
-    @OptIn(ExperimentalObjCRefinement::class)
-    @HiddenFromObjC
-    @Deprecated(
-        "Use getPendingDocumentIds(Collection)",
-        ReplaceWith("getPendingDocumentIds(config.database.defaultCollection)")
-    )
-    @Suppress("DEPRECATION", "ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT") // https://youtrack.jetbrains.com/issue/KT-63047
-    //@get:Throws(CouchbaseLiteException::class)
-    public actual val pendingDocumentIds: Set<String>
-        get() {
-            config.database.mustBeOpen()
-            return wrapCBLError { error ->
-                @Suppress("UNCHECKED_CAST")
-                actual.pendingDocumentIDs(error) as Set<String>
-            }
-        }
-
-    /**
-     * Get a best effort set of document IDs in the default collection, that are still pending replication.
-     */
-    // For Objective-C/Swift throws
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Use getPendingDocumentIds(Collection)",
-        ReplaceWith("getPendingDocumentIds(config.database.defaultCollection())")
-    )
-    @Throws(CouchbaseLiteException::class)
-    public fun pendingDocumentIds(): Set<String> = pendingDocumentIds
-
-    @Suppress("DEPRECATION")
     @Throws(CouchbaseLiteException::class)
     public actual fun getPendingDocumentIds(collection: Collection): Set<String> {
-        config.database.mustBeOpen()
         return wrapCBLError { error ->
             @Suppress("UNCHECKED_CAST")
             actual.pendingDocumentIDsForCollection(collection.actual, error) as Set<String>
         }
     }
 
-    @Deprecated(
-        "Use isDocumentPending(String, Collection)",
-        ReplaceWith("isDocumentPending(docId, config.database.defaultCollection)")
-    )
-    @Throws(CouchbaseLiteException::class)
-    public actual fun isDocumentPending(docId: String): Boolean {
-        return wrapCBLError { error ->
-            actual.isDocumentPending(docId, error)
-        }
-    }
-
-    @Suppress("DEPRECATION")
     @Throws(CouchbaseLiteException::class)
     public actual fun isDocumentPending(docId: String, collection: Collection): Boolean {
-        config.database.mustBeOpen()
         return wrapCBLError { error ->
             actual.isDocumentPending(docId, collection.actual, error)
         }

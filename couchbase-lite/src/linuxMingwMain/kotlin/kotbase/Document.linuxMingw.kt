@@ -81,6 +81,9 @@ internal constructor(
     public actual val sequence: Long
         get() = CBLDocument_Sequence(actual).toLong()
 
+    public actual val timestamp: Long
+        get() = CBLDocument_Timestamp(actual).toLong()
+
     public actual open fun toMutable(): MutableDocument =
         MutableDocument(CBLDocument_MutableCopy(actual)!!, database)
 

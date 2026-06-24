@@ -53,15 +53,16 @@ internal class SuspendListenerToken(
     }
 }
 
-// Workaround for CBLListenerToken.remove not working for Replicator.addDocumentReplicationListener
-// https://www.couchbase.com/forums/t/cbl-ios-adddocumentreplicationlistener-listenertoken-remove-fails-to-remove-listener/37695
+// As of CBL 4.0 the Objective-C SDK removed CBLReplicator.removeChangeListenerWithToken:
+// in favor of CBLListenerToken.remove, which now removes the listener correctly.
+@Suppress("unused")
 internal open class ReplicatorListenerToken(
     actual: CBLListenerTokenProtocol,
     private val replicator: CBLReplicator
 ) : ListenerToken(actual) {
 
     override fun removeImpl() {
-        replicator.removeChangeListenerWithToken(actual)
+        actual.remove()
     }
 }
 

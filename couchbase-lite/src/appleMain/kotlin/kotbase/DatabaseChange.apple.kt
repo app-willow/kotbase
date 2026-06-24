@@ -15,18 +15,21 @@
  */
 package kotbase
 
-import cocoapods.CouchbaseLite.CBLDatabaseChange
+import cocoapods.CouchbaseLite.CBLCollectionChange
 import kotbase.internal.DelegatedClass
 
+// As of CBL 4.0 the Objective-C SDK removed CBLDatabaseChange in favor of
+// CBLCollectionChange. The deprecated DatabaseChange API is backed by the
+// default collection's change object.
 @Deprecated(
     "Use CollectionChange",
     ReplaceWith("CollectionChange")
 )
 public actual class DatabaseChange
 internal constructor(
-    actual: CBLDatabaseChange,
+    actual: CBLCollectionChange,
     public actual val database: Database
-) : DelegatedClass<CBLDatabaseChange>(actual) {
+) : DelegatedClass<CBLCollectionChange>(actual) {
 
     @Suppress("UNCHECKED_CAST")
     public actual val documentIDs: List<String>

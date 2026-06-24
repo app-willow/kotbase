@@ -245,7 +245,8 @@ public final class kotbase/CollectionChange : kotbase/internal/DelegatedClass {
 	public final fun getDocumentIDs ()Ljava/util/List;
 }
 
-public final class kotbase/CollectionConfiguration : kotbase/internal/DelegatedClass {
+public final class kotbase/CollectionConfiguration {
+	public fun <init> ()V
 	public fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getChannels ()Ljava/util/List;
@@ -273,26 +274,19 @@ public final class kotbase/CollectionKt {
 public final class kotbase/CommonConfigurationFactoriesKt {
 	public static final fun getCollectionConfigurationFactory ()Lkotbase/CollectionConfiguration;
 	public static final fun getFullTextIndexConfigurationFactory ()Lkotbase/FullTextIndexConfiguration;
-	public static final fun getLogFileConfigurationFactory ()Lkotbase/LogFileConfiguration;
 	public static final fun getValueIndexConfigurationFactory ()Lkotbase/ValueIndexConfiguration;
 	public static final fun newConfig (Lkotbase/CollectionConfiguration;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)Lkotbase/CollectionConfiguration;
 	public static final fun newConfig (Lkotbase/FullTextIndexConfiguration;[Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)Lkotbase/FullTextIndexConfiguration;
-	public static final fun newConfig (Lkotbase/LogFileConfiguration;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/Boolean;)Lkotbase/LogFileConfiguration;
 	public static final fun newConfig (Lkotbase/ValueIndexConfiguration;[Ljava/lang/String;)Lkotbase/ValueIndexConfiguration;
 	public static synthetic fun newConfig$default (Lkotbase/CollectionConfiguration;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotbase/CollectionConfiguration;
 	public static synthetic fun newConfig$default (Lkotbase/FullTextIndexConfiguration;[Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)Lkotbase/FullTextIndexConfiguration;
-	public static synthetic fun newConfig$default (Lkotbase/LogFileConfiguration;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/Boolean;ILjava/lang/Object;)Lkotbase/LogFileConfiguration;
 }
 
 public final class kotbase/CommonFlowsKt {
 	public static final fun collectionChangeFlow (Lkotbase/Collection;Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun collectionChangeFlow$default (Lkotbase/Collection;Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
-	public static final fun databaseChangeFlow (Lkotbase/Database;Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/flow/Flow;
-	public static synthetic fun databaseChangeFlow$default (Lkotbase/Database;Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun documentChangeFlow (Lkotbase/Collection;Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/flow/Flow;
-	public static final fun documentChangeFlow (Lkotbase/Database;Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun documentChangeFlow$default (Lkotbase/Collection;Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
-	public static synthetic fun documentChangeFlow$default (Lkotbase/Database;Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun documentReplicationFlow (Lkotbase/Replicator;Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun documentReplicationFlow$default (Lkotbase/Replicator;Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun queryChangeFlow (Lkotbase/Query;Lkotlin/coroutines/CoroutineContext;)Lkotlinx/coroutines/flow/Flow;
@@ -306,11 +300,9 @@ public final class kotbase/ConfigurationFactoriesKt {
 	public static final fun getReplicatorConfigurationFactory ()Lkotbase/ReplicatorConfiguration;
 	public static final synthetic fun newConfig (Lkotbase/DatabaseConfiguration;Ljava/lang/String;)Lkotbase/DatabaseConfiguration;
 	public static final fun newConfig (Lkotbase/DatabaseConfiguration;Ljava/lang/String;Ljava/lang/Boolean;)Lkotbase/DatabaseConfiguration;
-	public static final fun newConfig (Lkotbase/ReplicatorConfiguration;Lkotbase/Database;Lkotbase/Endpoint;Lkotbase/ReplicatorType;Ljava/lang/Boolean;Lkotbase/Authenticator;Ljava/util/Map;[BLjava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;)Lkotbase/ReplicatorConfiguration;
 	public static final fun newConfig (Lkotbase/ReplicatorConfiguration;Lkotbase/Endpoint;Ljava/util/Map;Lkotbase/ReplicatorType;Ljava/lang/Boolean;Lkotbase/Authenticator;Ljava/util/Map;[BLjava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;)Lkotbase/ReplicatorConfiguration;
 	public static synthetic fun newConfig$default (Lkotbase/DatabaseConfiguration;Ljava/lang/String;ILjava/lang/Object;)Lkotbase/DatabaseConfiguration;
 	public static synthetic fun newConfig$default (Lkotbase/DatabaseConfiguration;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)Lkotbase/DatabaseConfiguration;
-	public static synthetic fun newConfig$default (Lkotbase/ReplicatorConfiguration;Lkotbase/Database;Lkotbase/Endpoint;Lkotbase/ReplicatorType;Ljava/lang/Boolean;Lkotbase/Authenticator;Ljava/util/Map;[BLjava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;ILjava/lang/Object;)Lkotbase/ReplicatorConfiguration;
 	public static synthetic fun newConfig$default (Lkotbase/ReplicatorConfiguration;Lkotbase/Endpoint;Ljava/util/Map;Lkotbase/ReplicatorType;Ljava/lang/Boolean;Lkotbase/Authenticator;Ljava/util/Map;[BLjava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Boolean;ILjava/lang/Object;)Lkotbase/ReplicatorConfiguration;
 }
 
@@ -318,16 +310,6 @@ public final class kotbase/Conflict : kotbase/internal/DelegatedClass {
 	public final fun getDocumentId ()Ljava/lang/String;
 	public final fun getLocalDocument ()Lkotbase/Document;
 	public final fun getRemoteDocument ()Lkotbase/Document;
-}
-
-public final class kotbase/ConsoleLogger : kotbase/internal/DelegatedClass, kotbase/Logger {
-	public synthetic fun getActual$couchbase_lite ()Ljava/lang/Object;
-	public final fun getDomains ()Ljava/util/Set;
-	public fun getLevel ()Lcom/couchbase/lite/LogLevel;
-	public fun log (Lcom/couchbase/lite/LogLevel;Lkotbase/LogDomain;Ljava/lang/String;)V
-	public final fun setDomains (Ljava/util/Set;)V
-	public final fun setDomains ([Lkotbase/LogDomain;)V
-	public fun setLevel (Lcom/couchbase/lite/LogLevel;)V
 }
 
 public final class kotbase/CouchbaseLite {
@@ -355,55 +337,32 @@ public final class kotbase/DataSource$As : kotbase/DataSource {
 
 public final class kotbase/DataSource$Companion {
 	public final fun collection (Lkotbase/Collection;)Lkotbase/DataSource$As;
-	public final fun database (Lkotbase/Database;)Lkotbase/DataSource$As;
 }
 
 public final class kotbase/Database : kotbase/internal/DelegatedClass, java/lang/AutoCloseable {
 	public static final field Companion Lkotbase/Database$Companion;
 	public fun <init> (Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Lkotbase/DatabaseConfiguration;)V
-	public final fun addChangeListener (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotbase/ListenerToken;
-	public final fun addChangeListener (Lkotlin/jvm/functions/Function1;)Lkotbase/ListenerToken;
-	public final fun addChangeListener (Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function2;)V
-	public final fun addDocumentChangeListener (Ljava/lang/String;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotbase/ListenerToken;
-	public final fun addDocumentChangeListener (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lkotbase/ListenerToken;
-	public final fun addDocumentChangeListener (Ljava/lang/String;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function2;)V
 	public fun close ()V
 	public final fun createCollection (Ljava/lang/String;)Lkotbase/Collection;
 	public final fun createCollection (Ljava/lang/String;Ljava/lang/String;)Lkotbase/Collection;
-	public final fun createIndex (Ljava/lang/String;Lkotbase/Index;)V
-	public final fun createIndex (Ljava/lang/String;Lkotbase/IndexConfiguration;)V
 	public final fun createQuery (Ljava/lang/String;)Lkotbase/Query;
 	public final fun delete ()V
-	public final fun delete (Lkotbase/Document;)V
-	public final fun delete (Lkotbase/Document;Lcom/couchbase/lite/ConcurrencyControl;)Z
 	public final fun deleteCollection (Ljava/lang/String;)V
 	public final fun deleteCollection (Ljava/lang/String;Ljava/lang/String;)V
-	public final fun deleteIndex (Ljava/lang/String;)V
 	public final fun getCollection (Ljava/lang/String;)Lkotbase/Collection;
 	public final fun getCollection (Ljava/lang/String;Ljava/lang/String;)Lkotbase/Collection;
 	public final fun getCollections ()Ljava/util/Set;
 	public final fun getCollections (Ljava/lang/String;)Ljava/util/Set;
 	public final fun getConfig ()Lkotbase/DatabaseConfiguration;
-	public final fun getCount ()J
 	public final fun getDefaultCollection ()Lkotbase/Collection;
 	public final fun getDefaultScope ()Lkotbase/Scope;
-	public final fun getDocument (Ljava/lang/String;)Lkotbase/Document;
-	public final fun getDocumentExpiration (Ljava/lang/String;)Lkotlin/time/Instant;
-	public final fun getIndexes ()Ljava/util/List;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getPath ()Ljava/lang/String;
 	public final fun getScope (Ljava/lang/String;)Lkotbase/Scope;
 	public final fun getScopes ()Ljava/util/Set;
 	public final fun inBatch (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final fun performMaintenance (Lcom/couchbase/lite/MaintenanceType;)Z
-	public final fun purge (Ljava/lang/String;)V
-	public final fun purge (Lkotbase/Document;)V
-	public final fun removeChangeListener (Lkotbase/ListenerToken;)V
-	public final fun save (Lkotbase/MutableDocument;)V
-	public final fun save (Lkotbase/MutableDocument;Lcom/couchbase/lite/ConcurrencyControl;)Z
-	public final fun save (Lkotbase/MutableDocument;Lkotlin/jvm/functions/Function2;)Z
-	public final fun setDocumentExpiration (Ljava/lang/String;Lkotlin/time/Instant;)V
 }
 
 public final class kotbase/Database$Companion {
@@ -413,7 +372,6 @@ public final class kotbase/Database$Companion {
 	public static synthetic fun delete$default (Lkotbase/Database$Companion;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
 	public final fun exists (Ljava/lang/String;Ljava/lang/String;)Z
 	public static synthetic fun exists$default (Lkotbase/Database$Companion;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Z
-	public final fun getLog ()Lkotbase/Log;
 }
 
 public final class kotbase/DatabaseChange : kotbase/internal/DelegatedClass {
@@ -426,17 +384,10 @@ public final class kotbase/DatabaseConfiguration : kotbase/internal/DelegatedCla
 	public fun <init> (Lkotbase/DatabaseConfiguration;)V
 	public final fun getDirectory ()Ljava/lang/String;
 	public final fun isFullSync ()Z
-	public final fun isMMapEnabled ()Z
 	public final fun setDirectory (Ljava/lang/String;)Lkotbase/DatabaseConfiguration;
 	public final fun setDirectory (Ljava/lang/String;)V
 	public final fun setFullSync (Z)Lkotbase/DatabaseConfiguration;
 	public final fun setFullSync (Z)V
-	public final fun setMMapEnabled (Z)Lkotbase/DatabaseConfiguration;
-	public final fun setMMapEnabled (Z)V
-}
-
-public final class kotbase/DatabaseKt {
-	public static final fun get (Lkotbase/Database;Ljava/lang/String;)Lkotbase/DocumentFragment;
 }
 
 public final class kotbase/Defaults {
@@ -549,6 +500,7 @@ public class kotbase/Document : kotbase/internal/DelegatedClass, java/lang/Itera
 	public final fun getRevisionID ()Ljava/lang/String;
 	public final fun getSequence ()J
 	public fun getString (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getTimestamp ()J
 	public fun getValue (Ljava/lang/String;)Ljava/lang/Object;
 	public fun iterator ()Ljava/util/Iterator;
 	public fun toJSON ()Ljava/lang/String;
@@ -626,15 +578,6 @@ public final class kotbase/Expression$Companion {
 	public final fun value (Ljava/lang/Object;)Lkotbase/Expression;
 }
 
-public final class kotbase/FileLogger : kotbase/internal/DelegatedClass, kotbase/Logger {
-	public synthetic fun getActual$couchbase_lite ()Ljava/lang/Object;
-	public final fun getConfig ()Lkotbase/LogFileConfiguration;
-	public fun getLevel ()Lcom/couchbase/lite/LogLevel;
-	public fun log (Lcom/couchbase/lite/LogLevel;Lkotbase/LogDomain;Ljava/lang/String;)V
-	public final fun setConfig (Lkotbase/LogFileConfiguration;)V
-	public fun setLevel (Lcom/couchbase/lite/LogLevel;)V
-}
-
 public class kotbase/Fragment {
 	public fun get (I)Lkotbase/Fragment;
 	public fun get (Ljava/lang/String;)Lkotbase/Fragment;
@@ -681,9 +624,7 @@ public abstract interface class kotbase/FromRouter : kotbase/Query {
 
 public final class kotbase/FullTextFunction {
 	public static final field INSTANCE Lkotbase/FullTextFunction;
-	public final fun match (Ljava/lang/String;Ljava/lang/String;)Lkotbase/Expression;
 	public final fun match (Lkotbase/IndexExpression;Ljava/lang/String;)Lkotbase/Expression;
-	public final fun rank (Ljava/lang/String;)Lkotbase/Expression;
 	public final fun rank (Lkotbase/IndexExpression;)Lkotbase/Expression;
 }
 
@@ -888,18 +829,13 @@ public abstract class kotbase/ListenerToken : kotbase/internal/DelegatedClass, j
 	protected fun removeImpl ()V
 }
 
-public final class kotbase/Log : kotbase/internal/DelegatedClass {
-	public final fun getConsole ()Lkotbase/ConsoleLogger;
-	public final fun getCustom ()Lkotbase/Logger;
-	public final fun getFile ()Lkotbase/FileLogger;
-	public final fun setCustom (Lkotbase/Logger;)V
-}
-
 public final class kotbase/LogDomain : java/lang/Enum {
 	public static final field Companion Lkotbase/LogDomain$Companion;
 	public static final field DATABASE Lkotbase/LogDomain;
 	public static final field LISTENER Lkotbase/LogDomain;
+	public static final field MULTIPEER Lkotbase/LogDomain;
 	public static final field NETWORK Lkotbase/LogDomain;
+	public static final field PEER_DISCOVERY Lkotbase/LogDomain;
 	public static final field QUERY Lkotbase/LogDomain;
 	public static final field REPLICATOR Lkotbase/LogDomain;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
@@ -910,27 +846,6 @@ public final class kotbase/LogDomain : java/lang/Enum {
 public final class kotbase/LogDomain$Companion {
 	public final fun getALL ()Ljava/util/Set;
 	public final fun getALL_DOMAINS ()Ljava/util/Set;
-}
-
-public final class kotbase/LogFileConfiguration : kotbase/internal/DelegatedClass {
-	public fun <init> (Ljava/lang/String;)V
-	public fun <init> (Ljava/lang/String;Lkotbase/LogFileConfiguration;)V
-	public fun <init> (Lkotbase/LogFileConfiguration;)V
-	public final fun getDirectory ()Ljava/lang/String;
-	public final fun getMaxRotateCount ()I
-	public final fun getMaxSize ()J
-	public final fun getUsesPlaintext ()Z
-	public final fun setMaxRotateCount (I)Lkotbase/LogFileConfiguration;
-	public final fun setMaxRotateCount (I)V
-	public final fun setMaxSize (J)Lkotbase/LogFileConfiguration;
-	public final fun setMaxSize (J)V
-	public final fun setUsePlaintext (Z)Lkotbase/LogFileConfiguration;
-	public final fun setUsesPlaintext (Z)V
-}
-
-public abstract interface class kotbase/Logger {
-	public abstract fun getLevel ()Lcom/couchbase/lite/LogLevel;
-	public abstract fun log (Lcom/couchbase/lite/LogLevel;Lkotbase/LogDomain;Ljava/lang/String;)V
 }
 
 public final class kotbase/Meta {
@@ -1334,12 +1249,10 @@ public final class kotbase/Replicator : kotbase/internal/DelegatedClass, java/la
 	public final fun addDocumentReplicationListener (Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function2;)V
 	public fun close ()V
 	public final fun getConfig ()Lkotbase/ReplicatorConfiguration;
-	public final fun getPendingDocumentIds ()Ljava/util/Set;
 	public final fun getPendingDocumentIds (Lkotbase/Collection;)Ljava/util/Set;
 	public final fun getServerCertificates ()Ljava/util/List;
 	public final fun getStatus ()Lkotbase/ReplicatorStatus;
 	public final fun isClosed ()Z
-	public final fun isDocumentPending (Ljava/lang/String;)Z
 	public final fun isDocumentPending (Ljava/lang/String;Lkotbase/Collection;)Z
 	public final fun removeChangeListener (Lkotbase/ListenerToken;)V
 	public final fun start ()V
@@ -1363,9 +1276,8 @@ public final class kotbase/ReplicatorChange : kotbase/internal/DelegatedClass {
 	public final fun getStatus ()Lkotbase/ReplicatorStatus;
 }
 
-public final class kotbase/ReplicatorConfiguration : kotbase/internal/DelegatedClass {
+public final class kotbase/ReplicatorConfiguration {
 	public static final field Companion Lkotbase/ReplicatorConfiguration$Companion;
-	public fun <init> (Lkotbase/Database;Lkotbase/Endpoint;)V
 	public fun <init> (Lkotbase/Endpoint;)V
 	public fun <init> (Lkotbase/ReplicatorConfiguration;)V
 	public final fun addCollection (Lkotbase/Collection;Lkotbase/CollectionConfiguration;)Lkotbase/ReplicatorConfiguration;
@@ -1373,19 +1285,13 @@ public final class kotbase/ReplicatorConfiguration : kotbase/internal/DelegatedC
 	public final fun addCollections (Ljava/util/Collection;Lkotbase/CollectionConfiguration;)Lkotbase/ReplicatorConfiguration;
 	public static synthetic fun addCollections$default (Lkotbase/ReplicatorConfiguration;Ljava/util/Collection;Lkotbase/CollectionConfiguration;ILjava/lang/Object;)Lkotbase/ReplicatorConfiguration;
 	public final fun getAuthenticator ()Lkotbase/Authenticator;
-	public final fun getChannels ()Ljava/util/List;
 	public final fun getCollectionConfiguration (Lkotbase/Collection;)Lkotbase/CollectionConfiguration;
 	public final fun getCollections ()Ljava/util/Set;
-	public final fun getConflictResolver ()Lkotlin/jvm/functions/Function1;
-	public final fun getDatabase ()Lkotbase/Database;
-	public final fun getDocumentIDs ()Ljava/util/List;
 	public final fun getHeaders ()Ljava/util/Map;
 	public final fun getHeartbeat ()I
 	public final fun getMaxAttemptWaitTime ()I
 	public final fun getMaxAttempts ()I
 	public final fun getPinnedServerCertificate ()[B
-	public final fun getPullFilter ()Lkotlin/jvm/functions/Function2;
-	public final fun getPushFilter ()Lkotlin/jvm/functions/Function2;
 	public final fun getTarget ()Lkotbase/Endpoint;
 	public final fun getType ()Lkotbase/ReplicatorType;
 	public final fun isAcceptParentDomainCookies ()Z
@@ -1398,14 +1304,8 @@ public final class kotbase/ReplicatorConfiguration : kotbase/internal/DelegatedC
 	public final fun setAuthenticator (Lkotbase/Authenticator;)V
 	public final fun setAutoPurgeEnabled (Z)Lkotbase/ReplicatorConfiguration;
 	public final fun setAutoPurgeEnabled (Z)V
-	public final fun setChannels (Ljava/util/List;)Lkotbase/ReplicatorConfiguration;
-	public final fun setChannels (Ljava/util/List;)V
-	public final fun setConflictResolver (Lkotlin/jvm/functions/Function1;)Lkotbase/ReplicatorConfiguration;
-	public final fun setConflictResolver (Lkotlin/jvm/functions/Function1;)V
 	public final fun setContinuous (Z)Lkotbase/ReplicatorConfiguration;
 	public final fun setContinuous (Z)V
-	public final fun setDocumentIDs (Ljava/util/List;)Lkotbase/ReplicatorConfiguration;
-	public final fun setDocumentIDs (Ljava/util/List;)V
 	public final fun setHeaders (Ljava/util/Map;)Lkotbase/ReplicatorConfiguration;
 	public final fun setHeaders (Ljava/util/Map;)V
 	public final fun setHeartbeat (I)Lkotbase/ReplicatorConfiguration;
@@ -1416,10 +1316,6 @@ public final class kotbase/ReplicatorConfiguration : kotbase/internal/DelegatedC
 	public final fun setMaxAttempts (I)V
 	public final fun setPinnedServerCertificate ([B)Lkotbase/ReplicatorConfiguration;
 	public final fun setPinnedServerCertificate ([B)V
-	public final fun setPullFilter (Lkotlin/jvm/functions/Function2;)Lkotbase/ReplicatorConfiguration;
-	public final fun setPullFilter (Lkotlin/jvm/functions/Function2;)V
-	public final fun setPushFilter (Lkotlin/jvm/functions/Function2;)Lkotbase/ReplicatorConfiguration;
-	public final fun setPushFilter (Lkotlin/jvm/functions/Function2;)V
 	public final fun setType (Lkotbase/ReplicatorType;)Lkotbase/ReplicatorConfiguration;
 	public final fun setType (Lkotbase/ReplicatorType;)V
 }

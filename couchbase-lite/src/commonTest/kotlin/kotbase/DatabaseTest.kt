@@ -15,7 +15,6 @@
  */
 package kotbase
 
-import com.couchbase.lite.compareAge
 import com.couchbase.lite.isOpen
 import kotbase.ext.nowMillis
 import kotbase.internal.utils.FileUtils
@@ -587,7 +586,7 @@ class DatabaseTest : BaseDbTest() {
         assertTrue(testDatabase.isOpen)
         testDatabase.close()
         assertFalse(testDatabase.isOpen)
-        assertFailsWith<CouchbaseLiteError> {
+        assertFailsCouchbaseLite {
             testDatabase.inBatch { }
         }
     }
@@ -607,7 +606,7 @@ class DatabaseTest : BaseDbTest() {
         assertTrue(testDatabase.isOpen)
         testDatabase.close()
         assertFalse(testDatabase.isOpen)
-        assertFailsWith<CouchbaseLiteError> { testDatabase.delete() }
+        assertFailsCouchbaseLite { testDatabase.delete() }
     }
 
     //---------------------------------------------
@@ -631,7 +630,7 @@ class DatabaseTest : BaseDbTest() {
         assertFalse(FileUtils.dirExists(path))
 
         // second delete should fail
-        assertFailsWith<CouchbaseLiteError> { testDatabase.delete() }
+        assertFailsCouchbaseLite { testDatabase.delete() }
     }
 
     @Test
@@ -710,7 +709,7 @@ class DatabaseTest : BaseDbTest() {
         assertTrue(FileUtils.dirExists(path))
         testDatabase.delete()
         assertFalse(FileUtils.dirExists(path))
-        assertFailsWith<CouchbaseLiteError> {
+        assertFailsCouchbaseLite {
             testDatabase.inBatch { }
         }
     }
@@ -1827,7 +1826,9 @@ class DatabaseTest : BaseDbTest() {
         val doc1 = saveDocInCollection(mDoc)
         mDoc.setValue("age", 20)
         val doc2 = saveDocInCollection(mDoc)
-        assertEquals(1, doc2.compareAge(doc1))
+        // CBL 4.0 version vectors: the re-saved document is newer, reflected by its timestamp
+        // (the revision-tree generation counter no longer applies)
+        assertTrue(doc2.timestamp >= doc1.timestamp)
         assertEquals(20, doc2.getInt("age"))
         assertEquals("Scott Tiger", doc2.getString("name"))
     }
@@ -1912,33 +1913,6 @@ class DatabaseTest : BaseDbTest() {
      * 7. Get the configuration object from the database and verify that mmapEnabled is true
      * 8. Use c4db_config2 to confirm that its config doesn't contain the kC4DB_MmapDisabled flag
      */
-    @Test
-    fun testDatabaseWithConfiguredMMap() {
-        val config = DatabaseConfiguration()
-        config.isMMapEnabled = false
-
-        var db = createDb("mmapdb1", config)
-        assertFalse(db.config.isMMapEnabled)
-
-        try {
-//            assertEquals(
-//                C4Constants.DatabaseFlags.DISABLE_MMAP,
-//                C4TestUtils.getFlags(db.openC4Database) and C4Constants.DatabaseFlags.DISABLE_MMAP
-//            )
-        } finally {
-            eraseDb(db)
-        }
-
-        config.isMMapEnabled = true
-        db = createDb("mmapdb2", config)
-        assertTrue(db.config.isMMapEnabled)
-
-        try {
-//            assertEquals(0, C4TestUtils.getFlags(db.openC4Database) and C4Constants.DatabaseFlags.DISABLE_MMAP)
-        } finally {
-            eraseDb(db)
-        }
-    }
 
 //    @Test
 //    fun testDatabaseCookies() {

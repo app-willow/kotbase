@@ -1,5 +1,60 @@
 # Change Log
 
+## 4.0.4-2.0.0
+
+* Couchbase Lite [4.0 API](https://docs.couchbase.com/couchbase-lite/4.0/cbl-whatsnew.html) — Version Vectors
+    * [Android SDK](https://docs.couchbase.com/couchbase-lite/4.0/android/releasenotes.html)
+    * [Java SDK](https://docs.couchbase.com/couchbase-lite/4.0/java/releasenotes.html)
+    * [Objective-C SDK](https://docs.couchbase.com/couchbase-lite/4.0/objc/releasenotes.html)
+    * [C SDK](https://docs.couchbase.com/couchbase-lite/4.0/c/releasenotes.html)
+* Updated Couchbase Lite dependency to 4.0.4 on all platforms (JVM, Android, Objective-C, C)
+* New `Document.timestamp` property — the document's most recent update time, in nanoseconds since
+  the Unix epoch, derived from the version vector's hybrid logical clock
+* New `LogDomain.PEER_DISCOVERY` and `LogDomain.MULTIPEER` log domains (JVM/Android & Apple)
+
+* Vector Search updated to 2.0.0 (required for CBL 4.0) on all platforms:
+    * JVM & Android via the Maven `couchbase-lite-java/android-vector-search` 2.0.0 artifacts
+    * Native (Linux/Windows) via vendored Couchbase Lite Vector Search C binaries
+    * Apple via the vendored `CouchbaseLiteVectorSearch.xcframework` 2.0.0, linked per target
+      (the 2.0.0 CocoaPods pod is not published to the trunk, so the XCFramework is vendored and
+      linked directly instead of via a Pod)
+
+### ⚠️ Breaking changes
+
+Couchbase Lite 4.0 replaces revision trees with **version vectors**. This is a major, one-way change:
+
+* **Database upgrade is automatic and irreversible.** Opening a 3.x database with this release upgrades
+  it in place (documents convert to version vectors lazily as they are accessed and saved). A 3.x build
+  can no longer open an upgraded database — **back up the database before first open** if you need a
+  rollback path.
+* **Default conflict resolution is now last-write-wins**, comparing documents' hybrid-logical-clock
+  timestamps, replacing the previous "most active wins" (generation-based) strategy. Set a custom
+  `ConflictResolver` per `CollectionConfiguration` if last-write-wins is not acceptable.
+* **Revision ID format changed** from `<generation>-<hash>` to `<timestamp>@<source-id>`.
+* **Sync Gateway 4.x is required** for replication; 4.0 peers cannot replicate with 3.x peers or
+  Sync Gateway < 4.0. Upgrade Sync Gateway / App Services **before** deploying a 4.0-based app.
+
+### ⚠️ Removed APIs (removed in Couchbase Lite 4.0)
+
+* Legacy logging: `Database.log`, `Log`, `ConsoleLogger`, `FileLogger`, `Logger`, `LogFileConfiguration`,
+  and `LogFileConfigurationFactory` — use the [log sink API](https://kotbase.dev/current/logging/)
+  (`LogSinks`, `ConsoleLogSink`, `FileLogSink`, `CustomLogSink`)
+* Database-scoped document, index, and change-listener operations (`Database.save`/`getDocument`/`delete`/
+  `purge`/`count`/`setDocumentExpiration`/`getDocumentExpiration`/`addChangeListener`/
+  `addDocumentChangeListener`/`removeChangeListener`/`indexes`/`createIndex`/`deleteIndex`, the
+  `Database.get(key)` operator, and `Database.databaseChangeFlow`/`documentChangeFlow`) — use the
+  equivalent `Collection` members and flows
+* `ReplicatorConfiguration(database, target)` constructor and the `database`/`documentIDs`/`channels`/
+  `conflictResolver`/`pullFilter`/`pushFilter` members — pass collections via `addCollection`/
+  `addCollections` and configure filtering per `CollectionConfiguration`
+* `DataSource.database(Database)` — use `DataSource.collection(Collection)`
+* `DatabaseConfiguration.isMMapEnabled` / `setMMapEnabled` (memory-mapped files are managed by the SDK)
+* `Replicator.pendingDocumentIds` and `isDocumentPending(String)` (no-collection overloads) — use the
+  `Collection`-scoped overloads
+* `FullTextFunction.rank(String)` / `match(String, String)` — use the `IndexExpression` overloads
+* Enterprise: the `Database`-based `URLEndpointListenerConfiguration` and
+  `MessageEndpointListenerConfiguration` constructors — use the `Set<Collection>` constructors
+
 ## 3.2.4-1.2.0
 > 24 Oct 2025
 

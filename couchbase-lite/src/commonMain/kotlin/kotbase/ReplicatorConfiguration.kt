@@ -15,24 +15,10 @@
  */
 package kotbase
 
-import com.couchbase.lite.generation
-
 /**
  * Configuration for a Replicator
  */
 public expect class ReplicatorConfiguration {
-
-    /**
-     * Create a Replicator Configuration
-     *
-     * @param database the database to be synchronized
-     * @param target   the endpoint with which to synchronize it
-     */
-    @Deprecated(
-        "Use ReplicatorConfiguration(Endpoint)",
-        ReplaceWith("ReplicatorConfiguration(target).addCollection(database.defaultCollection, null)")
-    )
-    public constructor(database: Database, target: Endpoint)
 
     /**
      * Create a Replicator Configuration
@@ -186,68 +172,6 @@ public expect class ReplicatorConfiguration {
     public fun setHeartbeat(heartbeat: Int): ReplicatorConfiguration
 
     /**
-     * A collection of document IDs identifying documents to be replicated.
-     * If non-empty, only documents with IDs in this collection will be pushed and/or pulled.
-     * Default is empty: do not filter documents.
-     *
-     * @param documentIDs The document IDs.
-     * @return this.
-     */
-    @Deprecated("Use CollectionConfiguration.setDocumentIDs")
-    public fun setDocumentIDs(documentIDs: List<String>?): ReplicatorConfiguration
-
-    /**
-     * Sets a collection of Sync Gateway channel names from which to pull Documents.
-     * If unset, all accessible channels will be pulled.
-     * Default is empty: pull from all accessible channels.
-     *
-     * Note: Channel specifications apply only to replications
-     * pulling from a SyncGateway and only the channels visible
-     * to the authenticated user. Channel specs are ignored:
-     *
-     *  * during a push replication.
-     *  * during peer-to-peer or database-to-database replication
-     *  * when the specified channel is not accessible to the user
-     *
-     * @param channels The Sync Gateway channel names.
-     * @return this.
-     */
-    @Deprecated("Use CollectionConfiguration.setChannels")
-    public fun setChannels(channels: List<String>?): ReplicatorConfiguration
-
-    /**
-     * Sets the conflict resolver.
-     * Default is `ReplicatorConfiguration.DEFAULT_CONFLICT_RESOLVER`
-     *
-     * @param conflictResolver A conflict resolver.
-     * @return this.
-     */
-    @Deprecated("Use CollectionConfiguration.setConflictResolver")
-    public fun setConflictResolver(conflictResolver: ConflictResolver?): ReplicatorConfiguration
-
-    /**
-     * Sets a filter object for validating whether the documents can be pulled from the
-     * remote endpoint. Only documents for which the object returns true are replicated.
-     * Default is no filter.
-     *
-     * @param pullFilter The filter to filter the document to be pulled.
-     * @return this.
-     */
-    @Deprecated("Use CollectionConfiguration.setPullFilter")
-    public fun setPullFilter(pullFilter: ReplicationFilter?): ReplicatorConfiguration
-
-    /**
-     * Sets a filter object for validating whether the documents can be pushed
-     * to the remote endpoint.
-     * Default is no filter.
-     *
-     * @param pushFilter The filter to filter the document to be pushed.
-     * @return this.
-     */
-    @Deprecated("Use CollectionConfiguration.setPushFilter")
-    public fun setPushFilter(pushFilter: ReplicationFilter?): ReplicatorConfiguration
-
-    /**
      * The replication target to replicate with.
      */
     public val target: Endpoint
@@ -330,55 +254,6 @@ public expect class ReplicatorConfiguration {
      */
     public var heartbeat: Int
 
-    /**
-     * The local database to replicate with the replication target.
-     */
-    @Deprecated("Use CollectionConfiguration.collections")
-    public val database: Database
-
-    /**
-     * A collection of document IDs to filter: if not null, only documents with these IDs will be pushed
-     * and/or pulled.
-     */
-    @Deprecated("Use CollectionConfiguration.documentIDs")
-    public var documentIDs: List<String>?
-
-    /**
-     * Gets the collection of Sync Gateway channel names from which to pull documents.
-     * If unset, all accessible channels will be pulled.
-     * Default is empty: pull from all accessible channels.
-     *
-     * Note:  Channel specifications apply only to replications
-     * pulling from a SyncGateway and only the channels visible
-     * to the authenticated user.  Channel specs are ignored:
-     *
-     *  * during a push replication.
-     *  * during peer-to-peer or database-to-database replication
-     *  * when the specified channel is not accessible to the user
-     */
-    @Deprecated("Use CollectionConfiguration.channels")
-    public var channels: List<String>?
-
-    /**
-     * The conflict resolver.
-     */
-    @Deprecated("Use CollectionConfiguration.conflictResolver")
-    public var conflictResolver: ConflictResolver?
-
-    /**
-     * The filter used to determine whether a document will be pulled
-     * from the remote endpoint.
-     */
-    @Deprecated("Use CollectionConfiguration.pullFilter")
-    public var pullFilter: ReplicationFilter?
-
-    /**
-     * The filter used to determine whether a document will be pushed
-     * to the remote endpoint.
-     */
-    @Deprecated("Use CollectionConfiguration.pushFilter")
-    public var pushFilter: ReplicationFilter?
-
     public companion object
 }
 
@@ -399,24 +274,13 @@ public val ReplicatorConfiguration.Companion.DEFAULT_CONFLICT_RESOLVER: Conflict
 
 private val defaultConflictResolver: ConflictResolver by lazy {
     cr@{ conflict ->
-        // deletion always wins.
+        // Deletion always wins.
         val localDoc = conflict.localDocument
         val remoteDoc = conflict.remoteDocument
         if (localDoc == null || remoteDoc == null) return@cr null
 
-        // if one of the docs is newer, return it
-        val localGen = localDoc.generation
-        val remoteGen = remoteDoc.generation
-        if (localGen > remoteGen) {
-            return@cr localDoc
-        } else if (localGen < remoteGen) {
-            return@cr remoteDoc
-        }
-
-        // otherwise, choose one randomly, but deterministically.
-        val localRevId = localDoc.revisionID ?: return@cr remoteDoc
-        val remoteRevId = remoteDoc.revisionID
-        return@cr if (remoteRevId == null || localRevId < remoteRevId) remoteDoc else localDoc
+        // Last write wins, using the documents' hybrid-logical-clock timestamps.
+        return@cr if (remoteDoc.timestamp >= localDoc.timestamp) remoteDoc else localDoc
     }
 }
 

@@ -42,18 +42,6 @@ public expect open class DataSource {
          * @param database the database used as a source of data for query.
          * @return `DataSource` object.
          */
-        @Deprecated(
-            "Use DataSource.collection(Collection)",
-            ReplaceWith("collection(database.defaultCollection)")
-        )
-        public fun database(database: Database): As
-
-        /**
-         * Create a collection as a data source.
-         *
-         * @param collection the collection used as a source of data for query.
-         * @return `DataSource` object.
-         */
         public fun collection(collection: Collection): As
     }
 }

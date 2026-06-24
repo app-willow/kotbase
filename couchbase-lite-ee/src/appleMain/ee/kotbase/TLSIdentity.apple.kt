@@ -16,6 +16,8 @@
 package kotbase
 
 import cocoapods.CouchbaseLite.CBLTLSIdentity
+import cocoapods.CouchbaseLite.kCBLKeyUsagesClientAuth
+import cocoapods.CouchbaseLite.kCBLKeyUsagesServerAuth
 import kotbase.internal.DelegatedClass
 import kotbase.ext.toByteArray
 import kotbase.ext.toKotlinInstantMillis
@@ -52,10 +54,11 @@ internal constructor(actual: CBLTLSIdentity) : DelegatedClass<CBLTLSIdentity>(ac
             expiration: Instant?,
             alias: String
         ): TLSIdentity {
+            val keyUsages = if (isServer) kCBLKeyUsagesServerAuth else kCBLKeyUsagesClientAuth
             return wrapCBLError { error ->
                 @Suppress("UNCHECKED_CAST")
-                CBLTLSIdentity.createIdentityForServer(
-                    isServer,
+                CBLTLSIdentity.createIdentityForKeyUsages(
+                    keyUsages,
                     attributes as Map<Any?, *>,
                     expiration?.toNSDate(),
                     alias,

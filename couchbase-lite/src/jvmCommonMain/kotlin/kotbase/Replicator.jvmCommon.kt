@@ -63,27 +63,9 @@ internal constructor(
     public actual val serverCertificates: List<ByteArray>?
         get() = actual.serverCertificates?.map { it.encoded }
 
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Use getPendingDocumentIds(Collection)",
-        ReplaceWith("getPendingDocumentIds(config.database.defaultCollection)")
-    )
-    @get:Throws(CouchbaseLiteException::class)
-    public actual val pendingDocumentIds: Set<String>
-        get() = actual.pendingDocumentIds
-
     @Throws(CouchbaseLiteException::class)
     public actual fun getPendingDocumentIds(collection: Collection): Set<String> =
         actual.getPendingDocumentIds(collection.actual)
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Use isDocumentPending(String, Collection)",
-        ReplaceWith("isDocumentPending(docId, config.database.defaultCollection)")
-    )
-    @Throws(CouchbaseLiteException::class)
-    public actual fun isDocumentPending(docId: String): Boolean =
-        actual.isDocumentPending(docId)
 
     @Throws(CouchbaseLiteException::class)
     public actual fun isDocumentPending(docId: String, collection: Collection): Boolean =

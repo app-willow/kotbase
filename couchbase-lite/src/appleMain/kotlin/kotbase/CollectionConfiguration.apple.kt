@@ -15,35 +15,17 @@
  */
 package kotbase
 
+import cocoapods.CouchbaseLite.CBLCollection
 import cocoapods.CouchbaseLite.CBLCollectionConfiguration
-import kotbase.internal.DelegatedClass
 
 public actual class CollectionConfiguration
-internal constructor(
-    actual: CBLCollectionConfiguration,
-    pullFilter: ReplicationFilter? = null,
-    pushFilter: ReplicationFilter? = null,
-    conflictResolver: ConflictResolver? = null
-) : DelegatedClass<CBLCollectionConfiguration>(actual) {
-
-    public actual constructor(
-        channels: List<String>?,
-        documentIDs: List<String>?,
-        pullFilter: ReplicationFilter?,
-        pushFilter: ReplicationFilter?,
-        conflictResolver: ConflictResolver?
-    ) : this(
-        CBLCollectionConfiguration().apply {
-            this.channels = channels
-            this.documentIDs = documentIDs
-            this.pullFilter = pullFilter?.convert()
-            this.pushFilter = pushFilter?.convert()
-            this.conflictResolver = conflictResolver?.convert()
-        },
-        pullFilter,
-        pushFilter,
-        conflictResolver
-    )
+public actual constructor(
+    channels: List<String>?,
+    documentIDs: List<String>?,
+    pullFilter: ReplicationFilter?,
+    pushFilter: ReplicationFilter?,
+    conflictResolver: ConflictResolver?
+) {
 
     internal constructor(config: CollectionConfiguration) : this(
         config.channels?.toList(),
@@ -78,35 +60,27 @@ internal constructor(
         return this
     }
 
-    @Suppress("UNCHECKED_CAST")
-    public actual var channels: List<String>?
-        get() = actual.channels as List<String>?
-        set(value) {
-            actual.setChannels(value)
-        }
+    public actual var channels: List<String>? = channels
 
-    @Suppress("UNCHECKED_CAST")
-    public actual var documentIDs: List<String>?
-        get() = actual.documentIDs as List<String>?
-        set(value) {
-            actual.setDocumentIDs(value)
-        }
+    public actual var documentIDs: List<String>? = documentIDs
 
     public actual var conflictResolver: ConflictResolver? = conflictResolver
-        set(value) {
-            field = value
-            actual.setConflictResolver(value?.convert())
-        }
 
     public actual var pullFilter: ReplicationFilter? = pullFilter
-        set(value) {
-            field = value
-            actual.setPullFilter(value?.convert())
-        }
 
     public actual var pushFilter: ReplicationFilter? = pushFilter
-        set(value) {
-            field = value
-            actual.setPushFilter(value?.convert())
+
+    /**
+     * Build the underlying Couchbase Lite collection configuration for the given collection.
+     * As of CBL 4.0 a CollectionConfiguration is bound to a Collection at construction, so the
+     * Kotbase configuration holds its values until it is associated with a collection here.
+     */
+    internal fun toActual(collection: CBLCollection): CBLCollectionConfiguration =
+        CBLCollectionConfiguration(collection).also {
+            it.channels = channels
+            it.documentIDs = documentIDs
+            conflictResolver?.let { resolver -> it.conflictResolver = resolver.convert() }
+            pullFilter?.let { filter -> it.pullFilter = filter.convert() }
+            pushFilter?.let { filter -> it.pushFilter = filter.convert() }
         }
 }

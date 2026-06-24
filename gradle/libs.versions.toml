@@ -1,8 +1,8 @@
 [versions]
-couchbase-lite-java = "3.2.4"
-couchbase-lite-objc = "3.2.4"
-couchbase-lite-c = "3.2.4"
-couchbase-lite-vector-search = "1.0.0"
+couchbase-lite-java = "4.0.4"
+couchbase-lite-objc = "4.0.4"
+couchbase-lite-c = "4.0.4"
+couchbase-lite-vector-search = "2.0.0"
 dokka = "2.0.0"
 mockk = "1.14.6"
 

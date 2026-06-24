@@ -28,12 +28,6 @@ public expect class MessageEndpointListenerConfiguration {
      * @param database     to which the listener is attached
      * @param protocolType protocol type
      */
-    @Deprecated(
-        "Use MessageEndpointListener(Collection, ProtocolType)",
-        ReplaceWith("MessageEndpointListener(setOf(database.defaultCollection), protocolType)")
-    )
-    public constructor(database: Database, protocolType: ProtocolType)
-
     /**
      * Create a MessageEndpointListenerConfiguration with the passed protocol type, for the passed Collections
      * The passed set must contain at least one collection and all the collections it contains must belong

@@ -75,36 +75,12 @@ public constructor(config: ReplicatorConfiguration) : AutoCloseable {
     public val serverCertificates: List<ByteArray>?
 
     /**
-     * Get a best effort set of document IDs in the default collection, that are still pending replication.
-     */
-    @Deprecated(
-        "Use getPendingDocumentIds(Collection)",
-        ReplaceWith("getPendingDocumentIds(config.database.defaultCollection)")
-    )
-    @Suppress("WRONG_ANNOTATION_TARGET_WITH_USE_SITE_TARGET")
-    @get:Throws(CouchbaseLiteException::class)
-    public val pendingDocumentIds: Set<String>
-
-    /**
      * Get a best effort list of documents in the passed collection that are still pending replication.
      *
      * @return a set of ids for documents in the passed collection still awaiting replication.
      */
     @Throws(CouchbaseLiteException::class)
     public fun getPendingDocumentIds(collection: Collection): Set<String>
-
-    /**
-     * Best effort check to see if the document whose ID is passed is still pending replication.
-     *
-     * @param docId Document id
-     * @return true if the document is pending
-     */
-    @Deprecated(
-        "Use isDocumentPending(String, Collection)",
-        ReplaceWith("isDocumentPending(docId, config.database.defaultCollection)")
-    )
-    @Throws(CouchbaseLiteException::class)
-    public fun isDocumentPending(docId: String): Boolean
 
     /**
      * Best effort check to see if the document whose ID is passed is still pending replication.

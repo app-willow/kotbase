@@ -15,6 +15,8 @@
  */
 package kotbase
 
+import cocoapods.CouchbaseLite.CBLReplicatorConfiguration
+
 public actual fun ReplicatorConfiguration.setAllowReplicatingInBackground(
     allowReplicatingInBackground: Boolean
 ): ReplicatorConfiguration {
@@ -27,3 +29,9 @@ public actual var ReplicatorConfiguration.allowReplicatingInBackground: Boolean
     set(_) {
         // no-op
     }
+
+internal actual fun ReplicatorConfiguration.applyAllowReplicatingInBackground(
+    actual: CBLReplicatorConfiguration
+) {
+    // no-op: allowReplicatingInBackground is iOS-only (TARGET_OS_IPHONE)
+}

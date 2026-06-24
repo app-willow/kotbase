@@ -70,7 +70,7 @@ open class URLEndpointListenerBaseTest : BaseReplicatorTest() {
         listener?.stop()
 
         // Listener:
-        val config = URLEndpointListenerConfiguration(targetDatabase)
+        val config = URLEndpointListenerConfiguration(setOf(targetDatabase.defaultCollection))
         config.port = if (tls) wssPort else wsPort
         config.isTlsDisabled = !tls
         config.authenticator = auth
@@ -141,7 +141,7 @@ open class URLEndpointListenerBaseTest : BaseReplicatorTest() {
         type: ReplicatorType = ReplicatorType.PUSH_AND_PULL,
         serverCert: ByteArray? = null
     ): Replicator {
-        val config = ReplicatorConfiguration(db, target)
+        val config = ReplicatorConfiguration(target).addCollection(db.defaultCollection)
         config.type = type
         config.isContinuous = continuous
         config.pinnedServerCertificate = serverCert

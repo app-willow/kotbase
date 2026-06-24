@@ -17,11 +17,11 @@
 
 package kotbase
 
-import cocoapods.CouchbaseLite.CBLDatabaseChange
+import cocoapods.CouchbaseLite.CBLCollectionChange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal fun DatabaseChangeListener.convert(database: Database): (CBLDatabaseChange?) -> Unit {
+internal fun DatabaseChangeListener.convert(database: Database): (CBLCollectionChange?) -> Unit {
     return { change ->
         invoke(DatabaseChange(change!!, database))
     }
@@ -30,7 +30,7 @@ internal fun DatabaseChangeListener.convert(database: Database): (CBLDatabaseCha
 internal fun DatabaseChangeSuspendListener.convert(
     database: Database,
     scope: CoroutineScope
-): (CBLDatabaseChange?) -> Unit {
+): (CBLCollectionChange?) -> Unit {
     return { change ->
         scope.launch {
             invoke(DatabaseChange(change!!, database))

@@ -22,19 +22,6 @@ internal constructor(
     public actual val protocolType: ProtocolType
 ) {
 
-    @Deprecated(
-        "Use MessageEndpointListener(Collection, ProtocolType)",
-        ReplaceWith("MessageEndpointListener(setOf(database.defaultCollection), protocolType)")
-    )
-    public actual constructor(
-        database: Database,
-        protocolType: ProtocolType
-    ) : this(
-        database,
-        setOf(database.defaultCollection),
-        protocolType
-    )
-
     public actual constructor(
         collections: Set<Collection>,
         protocolType: ProtocolType

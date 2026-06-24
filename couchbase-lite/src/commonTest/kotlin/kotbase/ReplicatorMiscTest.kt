@@ -15,6 +15,7 @@
  */
 package kotbase
 
+import kotbase.test.IgnoreApple
 import kotbase.test.IgnoreLinuxMingw
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.CountDownLatch
@@ -287,33 +288,49 @@ class ReplicatorMiscTest : BaseReplicatorTest() {
 //    }
 
     // CBL-1218
+    // Ignored on Apple: starting a replicator on a closed database throws an Objective-C
+    // NSException in CBL 4.0, which Kotlin/Native cannot catch (it terminates the process).
+    @IgnoreApple
     @Test
     fun testStartReplicatorWithClosedDb() {
         val repl = makeBasicRepl()
 
         closeDb(testDatabase)
 
-        assertFailsWith<IllegalStateException> { repl.start() }
+        // Starting a replicator on a closed database fails; CBL 4.0 surfaces this as an
+        // IllegalStateException (incl. CouchbaseLiteError) on the JVM and a CouchbaseLiteException
+        // on the C/Objective-C SDKs.
+        val e = assertFails { repl.start() }
+        assertTrue(
+            e is IllegalStateException || e is CouchbaseLiteException,
+            "Expected starting a replicator on a closed database to fail, was $e"
+        )
     }
 
     // CBL-1218
+    // Ignored on Apple: operating on a closed database throws an uncatchable Objective-C
+    // NSException in CBL 4.0 (see testStartReplicatorWithClosedDb).
+    @IgnoreApple
     @Test
     fun testIsDocumentPendingWithClosedDb() {
         val repl = makeBasicRepl()
 
         deleteDb(testDatabase)
 
-        assertFailsWith<IllegalStateException> { repl.getPendingDocumentIds(testCollection) }
+        val e = assertFails { repl.getPendingDocumentIds(testCollection) }
+        assertTrue(e is IllegalStateException || e is CouchbaseLiteException, "was $e")
     }
 
     // CBL-1218
+    @IgnoreApple
     @Test
     fun testGetPendingDocIdsWithClosedDb() {
         val repl = makeBasicRepl()
 
         closeDb(testDatabase)
 
-        assertFailsWith<IllegalStateException> { repl.isDocumentPending("who-cares", testCollection) }
+        val e = assertFails { repl.isDocumentPending("who-cares", testCollection) }
+        assertTrue(e is IllegalStateException || e is CouchbaseLiteException, "was $e")
     }
 
     // CBL-1441

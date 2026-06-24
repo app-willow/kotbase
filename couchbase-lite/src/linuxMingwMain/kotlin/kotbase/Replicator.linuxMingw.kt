@@ -102,25 +102,6 @@ private constructor(
         }
     }
 
-    @Deprecated(
-        "Use getPendingDocumentIds(Collection)",
-        ReplaceWith("getPendingDocumentIds(config.database.defaultCollection)")
-    )
-    @Suppress("DEPRECATION", "ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT") // https://youtrack.jetbrains.com/issue/KT-63047
-    //@get:Throws(CouchbaseLiteException::class)
-    public actual val pendingDocumentIds: Set<String>
-        get() {
-            checkPullOnlyPendingDocIds()
-            config.database.mustBeOpen()
-            return wrapCBLError { error ->
-                val dict = CBLReplicator_PendingDocumentIDs(actual, error)
-                dict?.keys()?.also {
-                    FLDict_Release(dict)
-                }?.toSet() ?: emptySet()
-            }
-        }
-
-    @Suppress("DEPRECATION")
     @Throws(CouchbaseLiteException::class)
     public actual fun getPendingDocumentIds(collection: Collection): Set<String> {
         checkPullOnlyPendingDocIds()
@@ -133,21 +114,6 @@ private constructor(
         }
     }
 
-    @Deprecated(
-        "Use isDocumentPending(String, Collection)",
-        ReplaceWith("isDocumentPending(docId, config.database.defaultCollection)")
-    )
-    @Throws(CouchbaseLiteException::class)
-    public actual fun isDocumentPending(docId: String): Boolean {
-        checkPullOnlyPendingDocIds()
-        return wrapCBLError { error ->
-            memScoped {
-                CBLReplicator_IsDocumentPending(actual, docId.toFLString(this), error)
-            }
-        }
-    }
-
-    @Suppress("DEPRECATION")
     @Throws(CouchbaseLiteException::class)
     public actual fun isDocumentPending(docId: String, collection: Collection): Boolean {
         config.database.mustBeOpen()

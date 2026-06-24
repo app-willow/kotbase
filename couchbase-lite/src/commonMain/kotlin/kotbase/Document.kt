@@ -45,6 +45,13 @@ public expect open class Document : DictionaryInterface, Iterable<String> {
     public val revisionID: String?
 
     /**
+     * The document's timestamp: the time of the document's most recent update, in
+     * nanoseconds since the Unix epoch. Derived from the hybrid logical clock that
+     * backs the document's version vector. Returns 0 if the document has not been saved.
+     */
+    public val timestamp: Long
+
+    /**
      * The sequence number of the document in the database.
      * The sequence number indicates how recently the document has been changed. Every time a document
      * is updated, the database assigns it the next sequential sequence number. Thus, when a document's

@@ -58,18 +58,6 @@ class SimpleDatabaseTest : BaseTest() {
      * 3. Set the mmapEnabled property to false and verify that the value is false.
      * 4. Set the mmapEnabled property to true, and verify that the mmap value is true.
      */
-    @Test
-    fun testMMapConfig() {
-        val config = DatabaseConfiguration()
-
-        assertEquals(Defaults.Database.MMAP_ENABLED, config.isMMapEnabled)
-
-        config.isMMapEnabled = false
-        assertFalse(config.isMMapEnabled)
-
-        config.isMMapEnabled = true
-        assertTrue(config.isMMapEnabled)
-    }
 
     @Test
     fun testGetSetConfiguration() {
@@ -115,7 +103,7 @@ class SimpleDatabaseTest : BaseTest() {
         val db = createDb("default_config_db")
         try {
             assertNotNull(db)
-            assertEquals(0, db.count)
+            assertEquals(0, db.defaultCollection.count)
         } finally { eraseDb(db) }
     }
 
@@ -175,7 +163,7 @@ class SimpleDatabaseTest : BaseTest() {
             assertTrue(path.endsWith(DB_EXTENSION))
             assertTrue(path.contains(dir))
 
-            assertEquals(0, db.count)
+            assertEquals(0, db.defaultCollection.count)
         } finally {
             eraseDb(db)
         }

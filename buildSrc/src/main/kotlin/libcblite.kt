@@ -116,3 +116,21 @@ val Project.vectorSearchLibPath: String
 
 private fun vectorSearchPath(os: String, arch: String, version: String): String =
     "vendor/CouchbaseLiteVectorSearch/$os/$arch/CouchbaseLiteVectorSearch-$version"
+
+/**
+ * Project-relative directory containing the `CouchbaseLiteVectorSearch.framework` slice of the
+ * vendored Vector Search XCFramework for the given Apple target. Vector Search 2.0.0 is required
+ * for Couchbase Lite 4.0 but is not published to the CocoaPods trunk, so it is vendored as an
+ * XCFramework and linked directly instead of via a Pod.
+ */
+fun Project.vectorSearchAppleFrameworkDir(konanTarget: KonanTarget): String {
+    val version = libs.versions.couchbase.lite.vector.search.get()
+    val slice = when (konanTarget) {
+        KonanTarget.IOS_ARM64 -> "ios-arm64"
+        KonanTarget.IOS_SIMULATOR_ARM64, KonanTarget.IOS_X64 -> "ios-arm64_x86_64-simulator"
+        KonanTarget.MACOS_ARM64, KonanTarget.MACOS_X64 -> "macos-arm64_x86_64"
+        else -> error("Unhandled Apple target for Vector Search: $konanTarget")
+    }
+    return "vendor/CouchbaseLiteVectorSearch/apple/CouchbaseLiteVectorSearch-$version/" +
+        "CouchbaseLiteVectorSearch.xcframework/$slice"
+}

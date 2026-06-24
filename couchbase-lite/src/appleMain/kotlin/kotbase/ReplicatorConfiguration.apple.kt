@@ -16,74 +16,41 @@
 package kotbase
 
 import cocoapods.CouchbaseLite.CBLReplicatorConfiguration
-import cocoapods.CouchbaseLite.isClosed
 import kotbase.ext.toByteArray
 import kotbase.ext.toSecCertificate
-import kotbase.internal.DelegatedClass
 import kotlinx.cinterop.convert
 import platform.Security.SecCertificateRef
 
 public actual class ReplicatorConfiguration
 private constructor(
-    actual: CBLReplicatorConfiguration,
     public actual val target: Endpoint,
-    private var db: Database? = null,
-    private val collectionConfigurations: MutableMap<Collection, CollectionConfiguration> = mutableMapOf(),
-    authenticator: Authenticator? = null
-) : DelegatedClass<CBLReplicatorConfiguration>(actual) {
+    private val collectionConfigurations: MutableMap<Collection, CollectionConfiguration>
+) {
 
-    @Deprecated(
-        "Use ReplicatorConfiguration(Endpoint)",
-        ReplaceWith("ReplicatorConfiguration(target).addCollection(database.defaultCollection, null)")
-    )
-    public actual constructor(database: Database, target: Endpoint) : this(
-        CBLReplicatorConfiguration(database.actual, target.actual),
-        target,
-        database
-    ) {
-        addCollection(database.defaultCollection, null)
-    }
-
-    public actual constructor(target: Endpoint) : this(
-        CBLReplicatorConfiguration(target.actual),
-        target
-    )
+    public actual constructor(target: Endpoint) : this(target, mutableMapOf())
 
     public actual constructor(config: ReplicatorConfiguration) : this(
-        CBLReplicatorConfiguration(config.actual),
         config.target,
-        config.db,
-        config.collectionConfigurations.toMutableMap(),
-        config.authenticator
-    )
-
-    private fun checkCollection(collection: Collection) {
-        val database = collectionConfigurations.keys.firstOrNull()?.database ?: db ?: collection.database
-        require(database == collection.database) {
-            "Cannot add collection $collection because it does not belong to database ${database.name}."
-        }
-        require(!database.actual.isClosed()) {
-            "Cannot add collection $collection because database ${collection.database} is closed."
-        }
-        try {
-            requireNotNull(database.getCollection(collection.name, collection.scope.name)) {
-                "Cannot add collection $collection because it has been deleted."
-            }
-        } catch (e: CouchbaseLiteException) {
-            // Cause isn't logged on native platforms...
-            // https://youtrack.jetbrains.com/issue/KT-62794
-            println("Cause:")
-            println(e.message)
-            println(e.stackTraceToString())
-            throw IllegalArgumentException("Failed getting collection $collection", e)
-        }
+        config.collectionConfigurations.entries.associate { (collection, collectionConfig) ->
+            collection to CollectionConfiguration(collectionConfig)
+        }.toMutableMap()
+    ) {
+        type = config.type
+        isContinuous = config.isContinuous
+        isAutoPurgeEnabled = config.isAutoPurgeEnabled
+        headers = config.headers
+        isAcceptParentDomainCookies = config.isAcceptParentDomainCookies
+        authenticator = config.authenticator
+        pinnedServerCertificate = config.pinnedServerCertificate
+        maxAttempts = config.maxAttempts
+        maxAttemptWaitTime = config.maxAttemptWaitTime
+        heartbeat = config.heartbeat
+        allowReplicatingInBackgroundInternal = config.allowReplicatingInBackgroundInternal
     }
 
     public actual fun addCollection(collection: Collection, config: CollectionConfiguration?): ReplicatorConfiguration {
         checkCollection(collection)
-        val configNotNull = config?.let(::CollectionConfiguration) ?: CollectionConfiguration()
-        collectionConfigurations[collection] = configNotNull
-        actual.addCollection(collection.actual, configNotNull.actual)
+        collectionConfigurations[collection] = config?.let(::CollectionConfiguration) ?: CollectionConfiguration()
         return this
     }
 
@@ -92,99 +59,79 @@ private constructor(
         config: CollectionConfiguration?
     ): ReplicatorConfiguration {
         collections.forEach { collection ->
-            addCollection(collection, config)
+            checkCollection(collection)
+            collectionConfigurations[collection] = config?.let(::CollectionConfiguration) ?: CollectionConfiguration()
         }
         return this
     }
 
+    // All collections in a replicator configuration must belong to the same database
+    // and must not have been deleted.
+    private fun checkCollection(collection: Collection) {
+        val database = collectionConfigurations.keys.firstOrNull()?.database
+        require(database == null || database == collection.database) {
+            "All collections in a replicator configuration must belong to the same database"
+        }
+        val exists = try {
+            collection.database.getCollection(collection.name, collection.scope.name) != null
+        } catch (e: CouchbaseLiteException) {
+            false
+        }
+        require(exists) { "Collection ${collection.fullName} has been deleted" }
+    }
+
     public actual fun removeCollection(collection: Collection): ReplicatorConfiguration {
-        actual.removeCollection(collection.actual)
         collectionConfigurations.remove(collection)
         return this
     }
 
     public actual fun setType(type: ReplicatorType): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.type = type
+        this.type = type
         return this
     }
 
     public actual fun setContinuous(continuous: Boolean): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.isContinuous = continuous
+        this.isContinuous = continuous
         return this
     }
 
     public actual fun setAutoPurgeEnabled(enabled: Boolean): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.isAutoPurgeEnabled = enabled
+        this.isAutoPurgeEnabled = enabled
         return this
     }
 
     public actual fun setHeaders(headers: Map<String, String>?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.headers = headers
+        this.headers = headers
         return this
     }
 
     public actual fun setAcceptParentDomainCookies(acceptParentCookies: Boolean): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.isAcceptParentDomainCookies = acceptParentCookies
+        this.isAcceptParentDomainCookies = acceptParentCookies
         return this
     }
 
     public actual fun setAuthenticator(authenticator: Authenticator?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.authenticator = authenticator
+        this.authenticator = authenticator
         return this
     }
 
     public actual fun setPinnedServerCertificate(pinnedCert: ByteArray?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.pinnedServerCertificate = pinnedCert
+        this.pinnedServerCertificate = pinnedCert
         return this
     }
 
     public actual fun setMaxAttempts(maxAttempts: Int): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.maxAttempts = maxAttempts
+        this.maxAttempts = maxAttempts
         return this
     }
 
     public actual fun setMaxAttemptWaitTime(maxAttemptWaitTime: Int): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.maxAttemptWaitTime = maxAttemptWaitTime
+        this.maxAttemptWaitTime = maxAttemptWaitTime
         return this
     }
 
     public actual fun setHeartbeat(heartbeat: Int): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.heartbeat = heartbeat
-        return this
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use CollectionConfiguration.setDocumentIDs")
-    public actual fun setDocumentIDs(documentIDs: List<String>?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.documentIDs = documentIDs
-        return this
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use CollectionConfiguration.setChannels")
-    public actual fun setChannels(channels: List<String>?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.channels = channels
-        return this
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use CollectionConfiguration.setConflictResolver")
-    public actual fun setConflictResolver(conflictResolver: ConflictResolver?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.conflictResolver = conflictResolver
-        return this
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use CollectionConfiguration.setPullFilter")
-    public actual fun setPullFilter(pullFilter: ReplicationFilter?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.pullFilter = pullFilter
-        return this
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use CollectionConfiguration.setPushFilter")
-    public actual fun setPushFilter(pushFilter: ReplicationFilter?): ReplicatorConfiguration {
-        this@ReplicatorConfiguration.pushFilter = pushFilter
+        this.heartbeat = heartbeat
         return this
     }
 
@@ -192,141 +139,77 @@ private constructor(
         collectionConfigurations[collection]?.let(::CollectionConfiguration)
 
     public actual val collections: Set<Collection>
-        get() = collectionConfigurations.keys
+        get() = collectionConfigurations.keys.toSet()
 
-    public actual var type: ReplicatorType
-        get() = ReplicatorType.from(actual.replicatorType)
-        set(value) {
-            actual.replicatorType = value.actual
+    public actual var type: ReplicatorType = Defaults.Replicator.TYPE
+
+    public actual var isContinuous: Boolean = Defaults.Replicator.CONTINUOUS
+
+    public actual var isAutoPurgeEnabled: Boolean = Defaults.Replicator.ENABLE_AUTO_PURGE
+
+    public actual var headers: Map<String, String>? = null
+
+    public actual var isAcceptParentDomainCookies: Boolean = Defaults.Replicator.ACCEPT_PARENT_COOKIES
+
+    public actual var authenticator: Authenticator? = null
+
+    public actual var pinnedServerCertificate: ByteArray? = null
+
+    // Stored as 0 = "use the SDK default"; getters resolve to the effective default,
+    // matching the Couchbase Lite getters' behavior.
+    public actual var maxAttempts: Int = 0
+        get() = when {
+            field != 0 -> field
+            isContinuous -> Defaults.Replicator.MAX_ATTEMPTS_CONTINUOUS
+            else -> Defaults.Replicator.MAX_ATTEMPTS_SINGLE_SHOT
         }
-
-    public actual var isContinuous: Boolean
-        get() = actual.continuous
-        set(value) {
-            actual.continuous = value
-        }
-
-    public actual var isAutoPurgeEnabled: Boolean
-        get() = actual.enableAutoPurge
-        set(value) {
-            actual.enableAutoPurge = value
-        }
-
-    @Suppress("UNCHECKED_CAST")
-    public actual var headers: Map<String, String>?
-        get() = actual.headers as Map<String, String>?
-        set(value) {
-            actual.headers = value as Map<Any?, *>?
-        }
-
-    public actual var isAcceptParentDomainCookies: Boolean
-        get() = actual.acceptParentDomainCookies
-        set(value) {
-            actual.acceptParentDomainCookies = value
-        }
-
-    public actual var authenticator: Authenticator? = authenticator
-        set(value) {
-            field = value
-            actual.authenticator = value?.actual
-        }
-
-    public actual var pinnedServerCertificate: ByteArray?
-        get() = actual.pinnedServerCertificate?.toByteArray()
-        set(value) {
-            actual.pinnedServerCertificate = value?.toSecCertificate()
-        }
-
-    public actual var maxAttempts: Int
-        get() = actual.maxAttempts.toInt()
         set(value) {
             require(value >= 0) { "max attempts must be >=0" }
-            actual.maxAttempts = value.convert()
+            field = value
         }
 
-    public actual var maxAttemptWaitTime: Int
-        get() = actual.maxAttemptWaitTime.toInt()
+    public actual var maxAttemptWaitTime: Int = 0
+        get() = if (field != 0) field else Defaults.Replicator.MAX_ATTEMPTS_WAIT_TIME
         set(value) {
             require(value >= 0) { "max attempt wait time must be >=0" }
-            actual.maxAttemptWaitTime = value.toDouble()
+            field = value
         }
 
-    public actual var heartbeat: Int
-        get() = actual.heartbeat.toInt()
+    public actual var heartbeat: Int = 0
+        get() = if (field != 0) field else Defaults.Replicator.HEARTBEAT
         set(value) {
-            require(value >= 0) { "heartbeat must be >=0" }
-            val millis = value * 1000L
-            require(millis <= Int.MAX_VALUE) { "heartbeat too large" }
-            actual.heartbeat = value.toDouble()
+            require(value in 0..MAX_HEARTBEAT_SECONDS) { "heartbeat must be between 0 and $MAX_HEARTBEAT_SECONDS seconds" }
+            field = value
         }
 
-    @Deprecated("Use CollectionConfiguration.collections")
-    public actual val database: Database
+    // Apple-only background replication flag, surfaced through the iosMain/macosMain extensions.
+    internal var allowReplicatingInBackgroundInternal: Boolean = Defaults.Replicator.ALLOW_REPLICATING_IN_BACKGROUND
+
+    /**
+     * Build the underlying Couchbase Lite replicator configuration from the current state.
+     * As of CBL 4.0 the collection set is fixed at construction, so Kotbase keeps the
+     * configuration's state and materializes the native configuration on demand.
+     */
+    internal val actual: CBLReplicatorConfiguration
         get() {
-            return collectionConfigurations.keys.firstOrNull()?.database
-                ?: db
-                ?: throw CouchbaseLiteError("No database or collections provided for replication configuration")
-        }
-
-    @Deprecated("Use CollectionConfiguration.documentIDs")
-    public actual var documentIDs: List<String>?
-        get() = getDefaultCollectionConfiguration().documentIDs?.toList()
-        set(value) {
-            updateDefaultConfig {
-                documentIDs = value
+            val collectionConfigs = collectionConfigurations.map { (collection, config) ->
+                config.toActual(collection.actual)
+            }
+            return CBLReplicatorConfiguration(collectionConfigs, target.actual).also {
+                it.replicatorType = type.actual
+                it.continuous = isContinuous
+                it.enableAutoPurge = isAutoPurgeEnabled
+                @Suppress("UNCHECKED_CAST")
+                it.headers = headers as Map<Any?, *>?
+                it.acceptParentDomainCookies = isAcceptParentDomainCookies
+                it.authenticator = authenticator?.actual
+                it.pinnedServerCertificate = pinnedServerCertificate?.toSecCertificate()
+                it.maxAttempts = maxAttempts.convert()
+                it.maxAttemptWaitTime = maxAttemptWaitTime.toDouble()
+                it.heartbeat = heartbeat.toDouble()
+                applyAllowReplicatingInBackground(it)
             }
         }
-
-    @Deprecated("Use CollectionConfiguration.channels")
-    public actual var channels: List<String>?
-        get() = getDefaultCollectionConfiguration().channels?.toList()
-        set(value) {
-            updateDefaultConfig {
-                channels = value
-            }
-        }
-
-    @Deprecated("Use CollectionConfiguration.conflictResolver")
-    public actual var conflictResolver: ConflictResolver?
-        get() = getDefaultCollectionConfiguration().conflictResolver
-        set(value) {
-            updateDefaultConfig {
-                conflictResolver = value
-            }
-        }
-
-    @Deprecated("Use CollectionConfiguration.pullFilter")
-    public actual var pullFilter: ReplicationFilter?
-        get() = getDefaultCollectionConfiguration().pullFilter
-        set(value) {
-            updateDefaultConfig {
-                pullFilter = value
-            }
-        }
-
-    @Deprecated("Use CollectionConfiguration.pushFilter")
-    public actual var pushFilter: ReplicationFilter?
-        get() = getDefaultCollectionConfiguration().pushFilter
-        set(value) {
-            updateDefaultConfig {
-                pushFilter = value
-            }
-        }
-
-    @Suppress("DEPRECATION")
-    private fun getDefaultCollectionConfiguration(): CollectionConfiguration {
-        return requireNotNull(collectionConfigurations[database.defaultCollection]) {
-            "Cannot use legacy parameters when the default collection has no configuration"
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun updateDefaultConfig(updater: CollectionConfiguration.() -> Unit) {
-        val config = getDefaultCollectionConfiguration()
-        val updated = CollectionConfiguration(config)
-        updated.updater()
-        addCollection(database.defaultCollection, updated)
-    }
 
     override fun toString(): String {
         return buildString {
@@ -356,8 +239,19 @@ private constructor(
         }
     }
 
-    public actual companion object
+    public actual companion object {
+        private const val MAX_HEARTBEAT_SECONDS = 2147483
+    }
 }
+
+/**
+ * Apply the Apple-only [ReplicatorConfiguration.allowReplicatingInBackground] flag to the
+ * underlying configuration. The ObjC `allowReplicatingInBackground` property is only available
+ * on iOS (`TARGET_OS_IPHONE`), so this is implemented per-platform: applied on iOS, a no-op on macOS.
+ */
+internal expect fun ReplicatorConfiguration.applyAllowReplicatingInBackground(
+    actual: CBLReplicatorConfiguration
+)
 
 /**
  * Sets the certificate used to authenticate the target server.
@@ -371,15 +265,15 @@ private constructor(
 public fun ReplicatorConfiguration.setPinnedServerSecCertificate(
     pinnedCert: SecCertificateRef?
 ): ReplicatorConfiguration {
-    actual.pinnedServerCertificate = pinnedCert
+    pinnedServerCertificate = pinnedCert?.toByteArray()
     return this
 }
 
 /**
- * The remote target’s SSL certificate.
+ * The remote target's SSL certificate.
  */
 public var ReplicatorConfiguration.pinnedServerSecCertificate: SecCertificateRef?
-    get() = actual.pinnedServerCertificate
+    get() = pinnedServerCertificate?.toSecCertificate()
     set(value) {
-        actual.pinnedServerCertificate = value
+        pinnedServerCertificate = value?.toByteArray()
     }

@@ -48,6 +48,9 @@ internal constructor(
     public actual val sequence: Long
         get() = actual.sequence.toLong()
 
+    public actual val timestamp: Long
+        get() = actual.timestamp.toLong()
+
     public actual open fun toMutable(): MutableDocument =
         MutableDocument(actual.toMutable(), collection)
 
