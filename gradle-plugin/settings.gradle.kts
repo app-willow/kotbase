@@ -1,0 +1,1 @@
+rootProject.name = "kotbase-couchbase-lite-gradle-plugin"
