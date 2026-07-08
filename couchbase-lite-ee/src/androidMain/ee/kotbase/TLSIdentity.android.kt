@@ -15,6 +15,7 @@
  */
 package kotbase
 
+import com.couchbase.lite.KeyUsage
 import com.couchbase.lite.deleteTLSIdentity
 import kotbase.internal.DelegatedClass
 import kotbase.ext.toByteArray
@@ -45,7 +46,7 @@ internal constructor(actual: CBLTLSIdentity) : DelegatedClass<CBLTLSIdentity>(ac
             expiration: Instant?,
             alias: String
         ): TLSIdentity = CBLTLSIdentity.createIdentity(
-            isServer,
+            if (isServer) setOf(KeyUsage.SERVER_AUTH) else setOf(KeyUsage.CLIENT_AUTH),
             attributes,
             expiration?.toDate(),
             alias
